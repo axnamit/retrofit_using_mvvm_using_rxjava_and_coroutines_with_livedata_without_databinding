@@ -15,4 +15,7 @@ interface Service {
 
     @GET("/posts")
     suspend fun coGO(): MutableList<Post>
+
+    @GET("/posts")
+    fun getListWithRxNetwork(): Observable<List<Post>>
 }

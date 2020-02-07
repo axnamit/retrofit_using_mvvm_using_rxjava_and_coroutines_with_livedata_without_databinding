@@ -1,5 +1,7 @@
 package com.example.mvvm.view_model
 
+import android.content.ContentValues.TAG
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.mvvm.model.Post
 import com.example.mvvm.network.Service
 import com.example.mvvm.utils.BASE_URL
+import com.rx2androidnetworking.Rx2AndroidNetworking
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -29,6 +33,8 @@ class ViewaModel : ViewModel() {
     var postsS: MutableLiveData<List<Post>>? = null
 
     var couroutine: MutableLiveData<List<Post>>? = null
+
+    var rxNetwork :MutableLiveData<List<Post>>? =null
 
     fun getPersons(): LiveData<List<Post>>? {
         if (posts == null) {
@@ -55,6 +61,14 @@ class ViewaModel : ViewModel() {
         return couroutine
     }
 
+
+
+  /*  @BindingAdapter
+    fun getPost(): Post? {
+        posts?.value?.get(0)?.let { return it }
+        return null
+    }*/
+
     private fun loadPersonList() {
         val httpClient = OkHttpClient.Builder()
         val retrofit: Retrofit = Retrofit.Builder()
@@ -74,7 +88,6 @@ class ViewaModel : ViewModel() {
                 if (response.isSuccessful) {
                     if (response.body() != null) {
                         posts?.value = response.body()
-
                     }
                 }
             }
@@ -99,6 +112,7 @@ class ViewaModel : ViewModel() {
 
         compositeDisposable?.add(
             requestInterface.getListWithRxJAVA()
+
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ onSuccess(it) }, {})
@@ -144,6 +158,38 @@ class ViewaModel : ViewModel() {
                  }
              }
          }*/
+
+    }
+
+    fun numbersa(a: Int, b: Int): Int? {
+
+        return a + b
+    }
+
+/*    override fun addDeviceDetails( queryParam: HashMap<String, Any>, headerParam: HashMap<String, Any>): Single<AddDeviceDetailsResponse> {
+        return Rx2AndroidNetworking.post(ApiList.ADD_DEVICE_DETAILS)
+            .doNotCacheResponse()
+            .setTag(TAG)
+            .addHeaders(headerParam)
+            .addQueryParameter(queryParam)
+            .build()
+            .getObjectSingle(AddDeviceDetailsResponse::class.java)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+    }
+
+*/
+private val TAG = ViewaModel::class.java.simpleName
+
+    fun rxNetworkMethod():Single<List<Post>>{
+        return Rx2AndroidNetworking.get(BASE_URL+"/posts")
+            .doNotCacheResponse()
+            .setTag(TAG)
+            .build()
+            .getObjectListSingle(Post::class.java)
+            //.getObjectSingle(Post::class.java)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     }
 
